@@ -12,6 +12,11 @@ class PythonCompletionsListener(sublime_plugin.EventListener):
 
     @python_only
     def on_query_completions(self, view, prefix, locations):
+        # Skip all prefixes ending with non-ASCII characters, since otherwise
+        # it lags insanely while typing in non-English strings.
+        if prefix and ord(prefix[-1]) > 128:
+            return []
+
         path = file_or_buffer_name(view)
         source = view.substr(sublime.Region(0, view.size()))
         loc = view.rowcol(locations[0])
